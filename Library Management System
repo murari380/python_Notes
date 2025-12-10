@@ -1,133 +1,133 @@
-import json
-
-
-# Book Class
 class Book:
-    def __init__(self, title, author, is_borrowed=False):
+    def __init__(self, title, author, is_borrowed="False"):
         self.title = title
         self.author = author
-        self.is_borrowed = is_borrowed
+        self.is_borrowed = is_borrowed == "True"
 
-    def to_dict(self):
-        """Convert book object to dictionary for saving to file"""
-        return {"title": self.title, "author": self.author, "is_borrowed": self.is_borrowed}
+    def to_line(self):
+        """Convert book into text line"""
+        return f"{self.title},{self.author},{self.is_borrowed}\n"
 
-
-
-# Library Class
 
 class Library:
-    def __init__(self, filename="library.json"):
+    def __init__(self, filename="library.txt"):
         self.filename = filename
         self.books = []
         self.load_books()
 
-    # Load books from file
+    # Load books from text file
     def load_books(self):
         try:
             with open(self.filename, "r") as file:
-                books_data = json.load(file)
-                self.books = [Book(**data) for data in books_data]
+                for line in file:
+                    title, author, is_borrowed = line.strip().split(",")
+                    self.books.append(Book(title, author, is_borrowed))
         except FileNotFoundError:
             self.books = []
-        except json.JSONDecodeError:
-            self.books = []
 
-    # Save books to file
+    # Save books to text file
     def save_books(self):
         with open(self.filename, "w") as file:
-            json.dump([book.to_dict() for book in self.books], file, indent=4)
+            for book in self.books:
+                file.write(book.to_line())
 
-    # Add a new book
+    # Add book
     def add_book(self, title, author):
         self.books.append(Book(title, author))
         self.save_books()
-        print(f'Book "{title}" by {author} added successfully.')
+        print(f"Book '{title}' added.")
 
     # Show all books
     def show_books(self):
         if not self.books:
-            print("No books in library.")
+            print("No books available.")
             return
-        for idx, book in enumerate(self.books, 1):
+        for i, book in enumerate(self.books, 1):
             status = "Borrowed" if book.is_borrowed else "Available"
-            print(f"{idx}. {book.title} by {book.author} - {status}")
+            print(f"{i}. {book.title} by {book.author} - {status}")
 
-    # Issue a book
+    # Issue book
     def issue_book(self, title):
         for book in self.books:
             if book.title.lower() == title.lower():
                 if book.is_borrowed:
-                    print(f'The book "{title}" is already borrowed.')
+                    print("This book is already borrowed.")
                 else:
                     book.is_borrowed = True
                     self.save_books()
-                    print(f'Book "{title}" has been issued.')
+                    print(f"You borrowed '{title}'.")
                 return
-        print(f'Book "{title}" not found.')
+        print("Book not found.")
 
-    # Return a book
+    # Return book
     def return_book(self, title):
         for book in self.books:
             if book.title.lower() == title.lower():
                 if not book.is_borrowed:
-                    print(f'The book "{title}" was not borrowed.')
+                    print("This book was not borrowed.")
                 else:
                     book.is_borrowed = False
                     self.save_books()
-                    print(f'Book "{title}" has been returned.')
+                    print(f"Book '{title}' returned.")
                 return
-        print(f'Book "{title}" not found.')
+        print("Book not found.")
 
-    # Remove a book
+    # Remove book
     def remove_book(self, title):
         for book in self.books:
             if book.title.lower() == title.lower():
                 self.books.remove(book)
                 self.save_books()
-                print(f'Book "{title}" removed from library.')
+                print(f"Book '{title}' removed.")
                 return
-        print(f'Book "{title}" not found.')
+        print("Book not found.")
 
 
-
-# Main Program
-
+# ---------------------------
+# MAIN MENU
+# ---------------------------
 def main():
     library = Library()
 
     while True:
         print("\n--- Library Menu ---")
         print("1. Add Book")
-        print("2. Show All Books")
+        print("2. Show Books")
         print("3. Issue Book")
         print("4. Return Book")
         print("5. Remove Book")
         print("6. Exit")
 
-        choice = input("Enter your choice: ")
+        choice = input("Enter choice: ")
 
         if choice == "1":
-            title = input("Enter book title: ")
-            author = input("Enter author name: ")
+            title = input("Book title: ")
+            author = input("Author: ")
             library.add_book(title, author)
+
         elif choice == "2":
             library.show_books()
+
         elif choice == "3":
-            title = input("Enter book title to issue: ")
+            title = input("Enter book to issue: ")
             library.issue_book(title)
+
         elif choice == "4":
-            title = input("Enter book title to return: ")
+            title = input("Enter book to return: ")
             library.return_book(title)
+
         elif choice == "5":
-            title = input("Enter book title to remove: ")
+            title = input("Enter book to remove: ")
             library.remove_book(title)
+
         elif choice == "6":
-            print("Exiting... Goodbye!")
+            print("Goodbye!")
             break
+
         else:
-            print("Invalid choice! Please try again.")
+            print("Invalid choice. Try again.")
 
 
 if __name__ == "__main__":
     main()
+
