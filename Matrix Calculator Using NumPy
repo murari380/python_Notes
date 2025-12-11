@@ -1,0 +1,119 @@
+import numpy as np
+
+# Function to take matrix input
+def input_matrix():
+    rows = int(input("Enter number of rows: "))
+    cols = int(input("Enter number of columns: "))
+    
+    print("Enter matrix values row by row:")
+    matrix = []
+    for i in range(rows):
+        row = list(map(float, input(f"Row {i+1}: ").split()))
+        matrix.append(row)
+    
+    return np.array(matrix)
+
+# Menu loop
+while True:
+    print("\n MATRIX CALCULATOR")
+    print("1. Add Matrices")
+    print("2. Subtract Matrices")
+    print("3. Multiply Matrices")
+    print("4. Dot Product")
+    print("5. Transpose")
+    print("6. Determinant")
+    print("7. Inverse")
+    print("8. Identity Matrix")
+    print("9. Exit")
+    
+    choice = input("\n Choose an option (1-9): ")
+
+    # 1. MATRIX ADDITION
+    if choice == "1":
+        print("\nEnter Matrix A:")
+        A = input_matrix()
+        print("\nEnter Matrix B:")
+        B = input_matrix()
+
+        if A.shape != B.shape:
+            print("\n Error: Matrices must have the same shape for addition.")
+        else:
+            print("\n Result:\n", A + B)
+
+    # 2. MATRIX SUBTRACTION
+    elif choice == "2":
+        print("\nEnter Matrix A:")
+        A = input_matrix()
+        print("\nEnter Matrix B:")
+        B = input_matrix()
+
+        if A.shape != B.shape:
+            print("\n Error: Matrices must have the same shape for subtraction.")
+        else:
+            print("\nResult:\n", A - B)
+
+    # 3. MATRIX MULTIPLICATION
+    elif choice == "3":
+        print("\nEnter Matrix A:")
+        A = input_matrix()
+        print("\nEnter Matrix B:")
+        B = input_matrix()
+
+        if A.shape[1] != B.shape[0]:
+            print("\n Error: A's columns must match B's rows for multiplication.")
+        else:
+            print("\nResult:\n", A @ B)
+
+    # 4. DOT PRODUCT
+    elif choice == "4":
+        print("\nEnter vector A:")
+        A = input_matrix()
+        print("\nEnter vector B:")
+        B = input_matrix()
+
+        try:
+            print("\nDot Product: ", np.dot(A, B))
+        except:
+            print("\n Error: Invalid shapes for dot product.")
+
+    # 5. TRANSPOSE
+    elif choice == "5":
+        print("\nEnter a matrix:")
+        A = input_matrix()
+        print("\nTranspose:\n", A.T)
+
+    # 6. DETERMINANT
+    elif choice == "6":
+        print("\nEnter a matrix:")
+        A = input_matrix()
+
+        if A.shape[0] != A.shape[1]:
+            print("\n Error: Determinant only works for square matrices.")
+        else:
+            print("\nDeterminant: ", np.linalg.det(A))
+
+    # 7. INVERSE
+    elif choice == "7":
+        print("\nEnter a matrix:")
+        A = input_matrix()
+
+        if A.shape[0] != A.shape[1]:
+            print("\n Error: Inverse only works for square matrices.")
+        else:
+            try:
+                print("\n Inverse:\n", np.linalg.inv(A))
+            except np.linalg.LinAlgError:
+                print("\n Error: Matrix is singular (det = 0), no inverse exists.")
+
+    # 8. IDENTITY MATRIX
+    elif choice == "8":
+        n = int(input("\n Enter size of identity matrix (n): "))
+        print("\nIdentity Matrix:\n", np.eye(n))
+
+    # 9. EXIT
+    elif choice == "9":
+        print("\n Thanks for using the Matrix Calculator.")
+        break
+
+    else:
+        print("\n Invalid choice. Please select between 1–9.")
