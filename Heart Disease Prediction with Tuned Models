@@ -1,0 +1,99 @@
+
+# STEP 0: Required Libraries
+import pandas as pd
+import numpy as np
+
+from sklearn.model_selection import train_test_split, GridSearchCV
+from sklearn.pipeline import Pipeline
+from sklearn.preprocessing import StandardScaler
+
+from sklearn.linear_model import LogisticRegression
+from sklearn.svm import SVC
+from sklearn.naive_bayes import GaussianNB
+
+from sklearn.metrics import accuracy_score, classification_report, confusion_matrix
+
+# STEP 1: 
+Load Datasetdata = pd.read_csv("/content/heart.csv") 
+
+# Check dataset quickly
+print(data.head())
+print(data.info())
+print(data.describe())
+
+# STEP 2: Split Features & Target
+X = data.drop("target", axis=1)  # All columns except target
+y = data["target"]               # Target column
+
+# STEP 3: Train–Test Split
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.2, random_state=42
+)
+
+print("Training samples:", X_train.shape[0])
+print("Testing samples:", X_test.shape[0])
+
+# STEP 4: Create Pipelines
+# Logistic Regression Pipeline
+pipe_lr = Pipeline([
+    ("scaler", StandardScaler()),
+    ("model", LogisticRegression())
+])
+
+# SVM Pipeline
+pipe_svm = Pipeline([
+    ("scaler", StandardScaler()),
+    ("model", SVC())
+])
+
+# Naïve Bayes Pipeline
+pipe_nb = Pipeline([
+    ("scaler", StandardScaler()),
+    ("model", GaussianNB())
+])
+
+# STEP 5: Hyperparameter Grids
+param_lr = {
+    "model__C": [0.1, 1, 10]
+}
+
+param_svm = {
+    "model__C": [0.1, 1, 10],
+    "model__kernel": ["linear", "rbf"]
+}
+
+param_nb = {}  # Naive Bayes has almost no tuning
+
+# STEP 6: GridSearchCV
+grid_lr = GridSearchCV(pipe_lr, param_lr, cv=5)
+grid_svm = GridSearchCV(pipe_svm, param_svm, cv=5)
+grid_nb = GridSearchCV(pipe_nb, param_nb, cv=5)
+
+# STEP 7: Train All Models
+grid_lr.fit(X_train, y_train)
+grid_svm.fit(X_train, y_train)
+grid_nb.fit(X_train, y_train)
+
+# STEP 8: Compare Best CV Scores
+print("Logistic Regression CV Score:", grid_lr.best_score_)
+print("SVM CV Score:", grid_svm.best_score_)
+print("Naive Bayes CV Score:", grid_nb.best_score_)
+
+# STEP 9: Choose Best Model
+# Example: Choose SVM
+best_model = grid_svm.best_estimator_
+
+# STEP 10: Test on Unseen Data
+y_pred = best_model.predict(X_test)
+
+# STEP 11: Evaluation
+# Accuracy
+print("Accuracy:", accuracy_score(y_test, y_pred))
+
+# Confusion Matrix
+print("Confusion Matrix:")
+print(confusion_matrix(y_test, y_pred))
+
+# Full Classification Report
+print("Classification Report:")
+print(classification_report(y_test, y_pred))
